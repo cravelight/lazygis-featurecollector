@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,24 +11,27 @@ namespace LazyGIS.FeatureCollector
 {
     public class ArcGISLayerProxy
     {
-        private readonly string _baseUrl;
-
         public ArcGISLayerProxy(string layerUrl)
         {
             _baseUrl = layerUrl;
-            PopulateLayerDetails();
-            PopulateIdList();
+            LoadLayerDetails();
+            LoadIdsForObjectsInLayer();
         }
+        private readonly string _baseUrl;
 
 
 
+        #region Properties
 
-        #region Layer Details
+        public string Url 
+        {
+            get { return _baseUrl; }
+        }
 
         /// <summary>
         /// The name of the layer
         /// </summary>
-        public string Name 
+        public string Name
         {
             get { return _layerDetails.name; }
         }
@@ -40,8 +44,54 @@ namespace LazyGIS.FeatureCollector
             get { return _layerDetails.type; }
         }
 
-        
-        private void PopulateLayerDetails()
+        /// <summary>
+        /// List of the objectids available in the layer
+        /// </summary>
+        public List<int> ObjectIds { get; private set; }
+
+        /// <summary>
+        /// The number of records in the layer
+        /// </summary>
+        public int RecordCount
+        {
+            get { return ObjectIds.Count; }
+        }
+
+        #endregion // Properties
+
+
+        #region ArcGISFeatureSet builder
+
+        public ArcGISFeatureSetDto GetArcGISFeatureSetObjectForLayer()
+        {
+            var dto = new ArcGISFeatureSetDto
+            {
+                displayFieldName = _layerDetails.displayField,
+                fields = _layerDetails.fields,
+                geometryType = _layerDetails.geometryType,
+                spatialReference = _layerDetails.extent["spatialReference"],
+                fieldAliases = _layerDetails.fields.ToDictionary<dynamic, string, string>(field => field["alias"], field => field["name"]),
+                features = ObjectIds.Select(id => GetFeatureForObject(id)).ToList()
+            };
+
+            return dto;
+        }
+
+        private dynamic GetFeatureForObject(int objectId)
+        {
+            //          foreach object in the layer
+            //              - get the details of the object -> "{baseurl}/{id}?f=pjson";
+            //              - deserialize and add to the features collection
+            return null;
+        }
+
+        #endregion // ArcGISFeatureSet builder
+
+
+
+        #region Layer Details
+
+        private void LoadLayerDetails()
         {
             using (var webClient = new System.Net.WebClient())
             {
@@ -64,20 +114,7 @@ namespace LazyGIS.FeatureCollector
 
         #region Object ID Collection
 
-        /// <summary>
-        /// List of the objectids available in the layer
-        /// </summary>
-        public List<int> ObjectIds { get; private set; }
-
-        /// <summary>
-        /// The number of records in the layer
-        /// </summary>
-        public int RecordCount 
-        {
-            get { return ObjectIds.Count; }
-        }
-
-        private void PopulateIdList()
+        private void LoadIdsForObjectsInLayer()
         {
             using (var webClient = new System.Net.WebClient())
             {

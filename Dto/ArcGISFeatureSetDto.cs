@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace LazyGIS.FeatureCollector.Models
+namespace LazyGIS.FeatureCollector.Dto
 {
     /// <summary>
     /// Represents an ArcGIS REST API specification for featureset. 
@@ -52,7 +48,7 @@ namespace LazyGIS.FeatureCollector.Models
     ///     ]
     /// }
     /// </example>
-    public class ArcGISFeatureSet
+    public class ArcGISFeatureSetDto
     {
         public string displayFieldName { get; set; }
         public Dictionary<string, string> fieldAliases { get; set; }
@@ -60,29 +56,11 @@ namespace LazyGIS.FeatureCollector.Models
         //unused for now    public bool hasZ { get; set; }
         //unused for now    public bool hasM { get; set; }
         public dynamic spatialReference { get; set; }
-        public IEnumerable<Field> fields { get; set; }
-        public IEnumerable<Feature> features { get; set; }
-
-        public class Field
-        {
-            public string name { get; set; }
-            public string type { get; set; }
-            public string alias { get; set; }
-        }
-
-        public class Feature
-        {
-            public dynamic geometry { get; set; }
-            public Dictionary<string, dynamic> attributes { get; set; }
-        }
+        public List<dynamic> fields { get; set; }
+        public List<dynamic> features { get; set; }
     }
 
 
 
-    public class ArcGISLayerDetailsDto
-    {
-        public string displayFieldName { get; set; }
-
-    }
 
 }
