@@ -19,7 +19,6 @@ namespace LazyGIS.FeatureCollector
             PopulateIdList();
         }
 
-        public const string ObjectRecordTemplate = "{baseurl}/{id}?f=pjson";
 
 
 

@@ -70,6 +70,7 @@
             this.txtSourceDataUrls.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.txtSourceDataUrls.Size = new System.Drawing.Size(578, 195);
             this.txtSourceDataUrls.TabIndex = 0;
+            this.txtSourceDataUrls.TextChanged += new System.EventHandler(this.txtSourceDataUrls_TextChanged);
             // 
             // btnInspect
             // 
