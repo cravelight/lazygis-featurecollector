@@ -71,18 +71,31 @@ namespace LazyGIS.FeatureCollector
                 geometryType = _layerDetails.geometryType,
                 spatialReference = _layerDetails.extent["spatialReference"],
                 fieldAliases = _layerDetails.fields.ToDictionary<dynamic, string, string>(field => field["alias"], field => field["name"]),
-                features = ObjectIds.Select(id => GetFeatureForObject(id)).ToList()
+                //features = ObjectIds.Select(id => GetFeatureForObject(id)).ToList()
+                // just get a few for testing
+                features = ObjectIds.Where(i => i < 10).Select(id => GetFeatureForObject(id)).ToList()
             };
 
             return dto;
         }
 
+        // this worked but getting them one at a time took forever
         private dynamic GetFeatureForObject(int objectId)
         {
-            //          foreach object in the layer
-            //              - get the details of the object -> "{baseurl}/{id}?f=pjson";
-            //              - deserialize and add to the features collection
-            return null;
+            using (var webClient = new System.Net.WebClient())
+            {
+                var json = webClient.DownloadString(GetFeatureDetailsUrl(objectId));
+                var dto = JsonConvert.DeserializeObject<ArcGISFeatureDetailsDto>(json);
+                return dto.feature;
+
+            }
+        }
+
+        private string GetFeatureDetailsUrl(int objectId)
+        {
+            const string template = "{baseurl}/{id}?f=pjson";
+            var url = template.Replace("{baseurl}", _baseUrl);
+            return url.Replace("{id}", objectId.ToString());
         }
 
         #endregion // ArcGISFeatureSet builder

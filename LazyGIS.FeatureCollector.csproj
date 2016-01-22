@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Dto\ArcGISFeatureSetDto.cs" />
+    <Compile Include="Dto\ArcGISFeatureDetailsDto.cs" />
     <Compile Include="Dto\ArcGISLayerDetailsDto.cs" />
     <Compile Include="Dto\ArcGISObjectIdCollectionDto.cs" />
     <Compile Include="Main.cs">
