@@ -71,9 +71,7 @@ namespace LazyGIS.FeatureCollector
                 geometryType = _layerDetails.geometryType,
                 spatialReference = _layerDetails.extent["spatialReference"],
                 fieldAliases = _layerDetails.fields.ToDictionary<dynamic, string, string>(field => field["alias"], field => field["name"]),
-                //features = ObjectIds.Select(id => GetFeatureForObject(id)).ToList()
-                // just get a few for testing
-                features = ObjectIds.Where(i => i < 10).Select(id => GetFeatureForObject(id)).ToList()
+                features = ObjectIds.Select(id => GetFeatureForObject(id)).ToList()
             };
 
             return dto;
