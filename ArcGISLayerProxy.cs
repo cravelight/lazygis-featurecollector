@@ -70,12 +70,29 @@ namespace LazyGIS.FeatureCollector
                 fields = _layerDetails.fields,
                 geometryType = _layerDetails.geometryType,
                 spatialReference = _layerDetails.extent["spatialReference"],
-                fieldAliases = _layerDetails.fields.ToDictionary<dynamic, string, string>(field => field["alias"], field => field["name"]),
+                fieldAliases = GetAliasesFromFieldList(),
                 features = GetFeaturesForLayer()
             };
 
             return dto;
         }
+
+        private Dictionary<string, string> GetAliasesFromFieldList()
+        {
+            var dictionary = new Dictionary<string, string>();
+            foreach (var field in _layerDetails.fields)
+            {
+                string name = field["name"];
+                string alias = field["alias"];
+                if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(alias))
+                {
+                    continue;
+                }
+                dictionary.Add(name, alias);
+            }
+            return dictionary;
+        }
+
 
         private List<dynamic> GetFeaturesForLayer()
         {
