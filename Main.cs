@@ -21,10 +21,8 @@ namespace LazyGIS.FeatureCollector
             InitializeComponent();
 
             //demo urls
-            txtSourceDataUrls.Text = @"http://ww1.bucoks.com/arcgis/rest/services/BuCoKs_NGStreets/MapServer/0";
-            //txtSourceDataUrls.Text = @"http://ww1.bucoks.com/arcgis/rest/services/BuCoKs_NGStreets/MapServer/0" +
-            //                         Environment.NewLine + 
-            //                         @"http://ww1.bucoks.com/arcgis/rest/services/BuCoKs_NGAddressPoints/MapServer/0";
+            txtSourceDataUrls.Text = @"http://arcgisweb.jacksongov.org/arcgis/rest/services/addressing/addresspoints/MapServer/0";
+
         }
 
         private void btnInspect_Click(object sender, EventArgs e)
@@ -52,15 +50,19 @@ namespace LazyGIS.FeatureCollector
             ShowWaitingCursor();
             ResetMessageBox();
 
+            var folderPathForCollectionRun = GetFolderPathForRun();
             foreach (var layer in _layerProxies)
             {
                 var hasErrors = false;
                 WriteMessageForProcessingStart(layer);
                 try
                 {
-                    var featureset = layer.GetArcGISFeatureSetObjectForLayer();
-                    var outpath = WriteFeaturesetToDisk(layer, featureset);
-                    AddMessage("  created: " + outpath);
+                    var featureCollector = new FeatureCollector(layer);
+                    var outfiles = featureCollector.WriteFeaturesToFiles(folderPathForCollectionRun);
+                    foreach (var outfile in outfiles)
+                    {
+                        AddMessage("  created: " + outfile);
+                    }
                 }
                 catch (Exception exception)
                 {
@@ -69,7 +71,6 @@ namespace LazyGIS.FeatureCollector
                 }
                 WriteMessageForProcessingEnd(layer, hasErrors);
             }
-
 
             ShowNormalCursor();
         }
@@ -86,16 +87,14 @@ namespace LazyGIS.FeatureCollector
 
         #region Layer Processing
 
-        private string WriteFeaturesetToDisk(ArcGISLayerProxy layer, ArcGISFeatureSetDto featureSet)
+        private string GetFolderPathForRun()
         {
-            var filename = string.Format("{0}_{1}.json", 
-                MakeValidFileNameFromUrl(layer.Url),
-                DateTime.Now.ToString("yyyy-MM-dd_H-mm-ss"));
-            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), filename);
-
-            var featuresetJson = JsonConvert.SerializeObject(featureSet, Formatting.Indented);
-
-            File.WriteAllText(path, featuresetJson);
+            var now = DateTime.Now;
+            var folderName = string.Format("FeatureCollectorData_{0}_{1}",
+                now.ToString("yyyyMMdd"), 
+                now.ToString("Hmmss"));
+            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), folderName);
+            Directory.CreateDirectory(path);
             return path;
         }
 
@@ -141,11 +140,6 @@ namespace LazyGIS.FeatureCollector
                 "{0} finished {1}" + Environment.NewLine,
                 layer.Name,
                 hasErrors ? "with errors." : "successfully."));
-        }
-
-        public static string MakeValidFileNameFromUrl(string url)
-        {
-            return Path.GetInvalidFileNameChars().Aggregate(url, (current, c) => current.Replace(c.ToString(), string.Empty));
         }
 
         #endregion // Layer Processing
