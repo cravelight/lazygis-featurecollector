@@ -53,6 +53,8 @@
     <Compile Include="Dto\ArcGISFeatureDetailsDto.cs" />
     <Compile Include="Dto\ArcGISLayerDetailsDto.cs" />
     <Compile Include="Dto\ArcGISObjectIdCollectionDto.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="FeatureCollector.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
